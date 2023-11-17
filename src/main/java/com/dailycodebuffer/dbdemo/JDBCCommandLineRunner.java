@@ -4,6 +4,7 @@ import com.dailycodebuffer.dbdemo.model.OrderDetails;
 import com.dailycodebuffer.dbdemo.model.OrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-
+@Profile("!jpa")
 @Component
 public class JDBCCommandLineRunner implements CommandLineRunner {
     @Autowired
