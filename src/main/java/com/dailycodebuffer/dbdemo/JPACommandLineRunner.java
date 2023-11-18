@@ -1,5 +1,6 @@
 package com.dailycodebuffer.dbdemo;
 
+import com.dailycodebuffer.dbdemo.model.CustomerDetailsView;
 import com.dailycodebuffer.dbdemo.model.OrderDetails;
 import com.dailycodebuffer.dbdemo.model.OrderEntity;
 import com.dailycodebuffer.dbdemo.repository.OrderJPARepository;
@@ -9,6 +10,9 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -75,5 +79,49 @@ public class JPACommandLineRunner implements CommandLineRunner {
         System.out.println("orderEntities received using inbuilt JPA : "+orderEntities);
         //Similarly, we can delete it as well
         orderJPARepository.deleteAllById(Arrays.asList(15,20,22,25));
+
+        System.out.println("Finding using derviced queries");
+        //See the logs and how query got transformed using spring data jpa
+        List<OrderEntity> orderJPARepositoryByItemName = orderJPARepository.findByItemName("JPA_ITEM29");
+        System.out.println("orderJPARepositoryByItemName is : "+ orderJPARepositoryByItemName);
+
+        //See the logs and how query got transformed using spring data jpa
+        System.out.println("findByCustomerNameLikeOrderByItemName started");
+        List<OrderEntity> orderByItemNameASC = orderJPARepository.findByCustomerNameLikeOrderByItemName("JPA_CUSTOMER");
+        System.out.println("orderByItemNameASC is : "+ orderByItemNameASC);
+
+        // As seen above if we go via derived method it keep increasing method name and gets difficult to write complex queries and it will have
+        // less readablit thats where we have @Query annotation which helps to write orm queiries.
+        System.out.println("Executing JPQL");
+        List<OrderEntity> ordersLikeCustomerName = orderJPARepository.searchByCustomerNameLike("JPA", Sort.by("itemName"));
+        System.out.println("ordersLikeCustomerName : "+ ordersLikeCustomerName);
+
+        System.out.println("Executing with projection");
+        List<CustomerDetailsView> allByItemName = orderJPARepository.findAllByItemName("JPA_ITEM29");
+        allByItemName.forEach(order-> System.out.println("Customer:"+ order.getCustomerName()+" Address:"+order.getAddressDetails()));
+
+        //execute using paging and sorting
+        executeUsingPage();
+
+    }
+    public void executeUsingPage() {
+        // Executing using Paging repository
+        //Paging repo helps us to find data by paging i.e limiting and sorting
+        System.out.println("Executing with paging of 2 items");
+
+        Page<OrderEntity> pageOrderEntity = orderJPARepository.findAll(Pageable.ofSize(2));
+        System.out.println("Current page size :"+ pageOrderEntity.getNumberOfElements());
+        System.out.println("total element size :"+ pageOrderEntity.getTotalElements());
+        System.out.println("total page size :"+ pageOrderEntity.getTotalPages());
+        //Every pages we get two information what is current page number and what is next and what was previous.
+        System.out.println("Iterate current page number :"+ pageOrderEntity.getPageable());
+        pageOrderEntity.get().forEach(System.out::println);
+        // Lets iterate next page , so we use page object retrived in previous page and then pass next one
+        pageOrderEntity = orderJPARepository.findAll(pageOrderEntity.getPageable().next());
+        System.out.println("Current page size :"+ pageOrderEntity.getNumberOfElements());
+        System.out.println("total element size :"+ pageOrderEntity.getTotalElements());
+        System.out.println("total page size :"+ pageOrderEntity.getTotalPages());
+        System.out.println("Iterate current page number :"+ pageOrderEntity.getPageable());
+        pageOrderEntity.get().forEach(System.out::println);
     }
 }
