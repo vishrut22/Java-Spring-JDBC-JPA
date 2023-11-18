@@ -2,6 +2,7 @@ package com.dailycodebuffer.dbdemo;
 
 import com.dailycodebuffer.dbdemo.model.OrderDetails;
 import com.dailycodebuffer.dbdemo.model.OrderMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -24,11 +25,13 @@ import java.util.Map;
 import java.util.stream.IntStream;
 @Profile("!jpa")
 @Component
+// this is also creating constructor and on to it add auto wire so automatically injection happening
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class JDBCCommandLineRunner implements CommandLineRunner {
-    @Autowired
+    //@Autowired
     JdbcTemplate jdbcTemplate;
 
-    @Autowired
+    //@Autowired
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
