@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-@Profile("!jpa")
+@Profile("jdbc")
 @Component
 // this is also creating constructor and on to it add auto wire so automatically injection happening
 @AllArgsConstructor(onConstructor = @__(@Autowired))
